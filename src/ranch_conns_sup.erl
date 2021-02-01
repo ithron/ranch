@@ -53,6 +53,7 @@
 terminate_child(SupPid, Pid, Reason) ->
 	io:format("terminate_child(~p, ~p, ~p)~n", [SupPid, Pid, Reason]),
 	SupPid ! {terminate_child, Pid, Reason},
+	io:format("Message sent!~n"),
 	ok.
 
 -spec start_link(ranch:ref(), pos_integer(), module(), any(), module(), module()) -> {ok, pid()}.
