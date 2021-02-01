@@ -21,6 +21,7 @@
 -export([start_link/6]).
 -export([start_protocol/3]).
 -export([active_connections/1]).
+-export([terminate_child/3]).
 
 %% Supervisor internals.
 -export([init/7]).
@@ -47,6 +48,11 @@
 }).
 
 %% API.
+
+-spec terminate_child(pid(), pid(), term()) -> ok.
+terminate_child(SupPid, Pid, Reason) ->
+	SupPid ! {terminate_child, Pid, Reason},
+	ok.
 
 -spec start_link(ranch:ref(), pos_integer(), module(), any(), module(), module()) -> {ok, pid()}.
 start_link(Ref, Id, Transport, TransOpts, Protocol, Logger) ->
@@ -216,6 +222,8 @@ loop(State=#state{parent=Parent, ref=Ref, id=Id, conn_type=ConnType,
 				undefined ->
 					loop(State, CurConns, NbChildren, Sleepers)
 			end;
+		{terminate_child, Pid, Reason} ->
+			exit(Pid, Reason);
 		{system, From, Request} ->
 			sys:handle_system_msg(Request, From, Parent, ?MODULE, [],
 				{State, CurConns, NbChildren, Sleepers});
