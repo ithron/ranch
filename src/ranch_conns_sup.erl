@@ -51,6 +51,7 @@
 
 -spec terminate_child(pid(), pid(), term()) -> ok.
 terminate_child(SupPid, Pid, Reason) ->
+	io:format("terminate_child(~p, ~p, ~p)~n", [SupPid, Pid, Reason]),
 	SupPid ! {terminate_child, Pid, Reason},
 	ok.
 
@@ -223,6 +224,7 @@ loop(State=#state{parent=Parent, ref=Ref, id=Id, conn_type=ConnType,
 					loop(State, CurConns, NbChildren, Sleepers)
 			end;
 		{terminate_child, Pid, Reason} ->
+			io:format("~p calling exit(~p, ~p)~n", [self(), Pid, Reason]),
 			exit(Pid, Reason);
 		{system, From, Request} ->
 			sys:handle_system_msg(Request, From, Parent, ?MODULE, [],
